@@ -7,3 +7,10 @@ yfinance
 streamlit
 plotly
 streamlit-option-menu
+scikit-learn
+optuna
+tensorflow
+keras
+textblob
+vaderSentiment
+requests

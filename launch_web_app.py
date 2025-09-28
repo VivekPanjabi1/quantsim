@@ -57,9 +57,23 @@ def launch_streamlit():
     except Exception as e:
         print(f"❌ Error launching app: {e}")
 
+def check_virtual_env():
+    """Check if we're in a virtual environment."""
+    return hasattr(sys, 'real_prefix') or (hasattr(sys, 'base_prefix') and sys.base_prefix != sys.prefix)
+
 def main():
     print("🚀 QuantSim Web Application Launcher")
     print("=" * 50)
+    
+    # Check virtual environment
+    if not check_virtual_env():
+        print("⚠️  Virtual environment not detected!")
+        print("Please activate your virtual environment first:")
+        print("   .venv\\Scripts\\activate")
+        print("   Then run: streamlit run streamlit_app.py")
+        input("Press Enter to continue anyway or Ctrl+C to exit...")
+    else:
+        print("✅ Virtual environment detected")
     
     # Check if Streamlit is installed
     if not check_streamlit_installed():

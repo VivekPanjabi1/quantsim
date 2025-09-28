@@ -13,6 +13,7 @@ from streamlit_option_menu import option_menu
 from engine.data_loader import load_data
 from engine.backtester import Backtester
 from strategies.moving_average import MovingAverageStrategy, ExponentialMovingAverageStrategy
+from ai_optimizer import AIStrategyOptimizer
 
 # Page configuration
 st.set_page_config(
@@ -626,8 +627,395 @@ def show_single_backtest():
         st.info("👈 Configure your backtest parameters in the sidebar and click 'Run Backtest' to get started!")
 
 def show_optimization():
-    st.markdown("## 🔧 Parameter Optimization")
-    st.info("🚧 Parameter optimization dashboard coming soon! This will allow you to test multiple parameter combinations automatically.")
+    # Header with gradient background
+    st.markdown("""
+    <div style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%); 
+                padding: 2rem; border-radius: 15px; margin-bottom: 2rem; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 2.5rem;">🤖 AI-Powered Strategy Optimization</h1>
+        <p style="color: white; margin: 0.5rem 0 0 0; font-size: 1.2rem; opacity: 0.9;">
+            Harness machine learning to discover optimal trading parameters
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    # Main content in tabs for better organization
+    tab1, tab2, tab3 = st.tabs(["🚀 AI Optimizer", "📊 Results Dashboard", "📈 Performance Analysis"])
+    
+    with tab1:
+        # Configuration section
+        st.markdown("### ⚙️ Configuration")
+        
+        col1, col2, col3 = st.columns([2, 2, 1])
+        
+        with col1:
+            ai_symbol = st.text_input(
+                "📈 Stock Symbol", 
+                value="AAPL", 
+                key="ai_symbol",
+                help="Enter any stock ticker (e.g., AAPL, TSLA, MSFT)"
+            )
+        
+        with col2:
+            optimization_method = st.selectbox(
+                "🧠 AI Method",
+                ["🤖 Machine Learning Predictor", "⚡ Hyperparameter Optimization", "🔬 Both Methods"],
+                help="Choose your AI optimization approach"
+            )
+        
+        with col3:
+            if optimization_method in ["⚡ Hyperparameter Optimization", "🔬 Both Methods"]:
+                n_trials = st.number_input("🎯 Trials", min_value=10, max_value=100, value=30)
+            else:
+                n_trials = 30
+        
+        st.markdown("---")
+        
+        # AI Method explanations with cards
+        st.markdown("### 🧠 AI Methods Overview")
+        
+        method_col1, method_col2, method_col3 = st.columns(3)
+        
+        with method_col1:
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+                        padding: 1.5rem; border-radius: 10px; height: 200px;">
+                <h4 style="color: #1976d2; margin-top: 0;">🤖 ML Predictor</h4>
+                <p style="color: #424242; font-size: 0.9rem;">
+                    • Analyzes 10+ market indicators<br>
+                    • Trains Random Forest models<br>
+                    • Predicts optimal parameters<br>
+                    • Provides confidence scores
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with method_col2:
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%); 
+                        padding: 1.5rem; border-radius: 10px; height: 200px;">
+                <h4 style="color: #f57c00; margin-top: 0;">⚡ Hyperparameter</h4>
+                <p style="color: #424242; font-size: 0.9rem;">
+                    • Uses Optuna TPE algorithm<br>
+                    • Intelligent parameter search<br>
+                    • Multi-objective optimization<br>
+                    • Global optimum discovery
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        with method_col3:
+            st.markdown("""
+            <div style="background: linear-gradient(135deg, #e8f5e8 0%, #c8e6c9 100%); 
+                        padding: 1.5rem; border-radius: 10px; height: 200px;">
+                <h4 style="color: #388e3c; margin-top: 0;">🔬 Both Methods</h4>
+                <p style="color: #424242; font-size: 0.9rem;">
+                    • Combines ML + Optimization<br>
+                    • Cross-validation approach<br>
+                    • Maximum accuracy<br>
+                    • Comprehensive analysis
+                </p>
+            </div>
+            """, unsafe_allow_html=True)
+        
+        st.markdown("---")
+        
+        # Launch button with enhanced styling
+        col_center = st.columns([1, 2, 1])[1]
+        with col_center:
+            if st.button("🚀 Launch AI Optimization", type="primary", use_container_width=True, key="launch_ai_optimization"):
+                with st.spinner("🤖 AI is analyzing market patterns and optimizing parameters..."):
+                    try:
+                        # Progress tracking
+                        progress_bar = st.progress(0)
+                        status_text = st.empty()
+                        
+                        # Initialize AI optimizer
+                        status_text.text("🔄 Initializing AI optimizer...")
+                        progress_bar.progress(10)
+                        optimizer = AIStrategyOptimizer(ai_symbol.upper())
+                        
+                        # Load data
+                        status_text.text("📊 Loading market data...")
+                        progress_bar.progress(20)
+                        optimizer.load_market_data()
+                        st.success(f"✅ Loaded market data for {ai_symbol.upper()}")
+                        
+                        results = {}
+                        
+                        # ML Prediction
+                        if optimization_method in ["🤖 Machine Learning Predictor", "🔬 Both Methods"]:
+                            status_text.text("🧠 Training AI model on market patterns...")
+                            progress_bar.progress(40)
+                            training_results = optimizer.train_ml_predictor()
+                            
+                            status_text.text("🔮 Generating AI predictions...")
+                            progress_bar.progress(60)
+                            ai_predictions = optimizer.predict_optimal_parameters()
+                            results['ai_predictions'] = ai_predictions
+                            results['training_results'] = training_results
+                        
+                        # Hyperparameter Optimization
+                        if optimization_method in ["⚡ Hyperparameter Optimization", "🔬 Both Methods"]:
+                            status_text.text("⚡ Running hyperparameter optimization...")
+                            progress_bar.progress(70)
+                            optuna_results = optimizer.hyperparameter_optimization(n_trials)
+                            results['optuna_results'] = optuna_results
+                        
+                        # Generate AI insights
+                        status_text.text("🧠 Generating AI insights...")
+                        progress_bar.progress(90)
+                        if 'optuna_results' in results:
+                            insights = optimizer.generate_ai_insights(results['optuna_results'])
+                            results['insights'] = insights
+                        
+                        # Complete
+                        progress_bar.progress(100)
+                        status_text.text("✅ AI optimization completed!")
+                        
+                        # Store results in session state
+                        st.session_state.ai_optimization_results = results
+                        st.success("🎯 AI optimization completed successfully! Check the Results Dashboard tab.")
+                        
+                    except Exception as e:
+                        st.error(f"❌ AI optimization failed: {str(e)}")
+    
+    with tab2:
+        st.markdown("### 📊 AI Optimization Dashboard")
+        
+        if 'ai_optimization_results' in st.session_state:
+            results = st.session_state.ai_optimization_results
+            
+            # Summary cards
+            st.markdown("#### 📈 Optimization Summary")
+            
+            summary_col1, summary_col2, summary_col3, summary_col4 = st.columns(4)
+            
+            with summary_col1:
+                if 'ai_predictions' in results:
+                    ai_pred = results['ai_predictions']
+                    st.markdown(f"""
+                    <div style="background: linear-gradient(135deg, #4fc3f7 0%, #29b6f6 100%); 
+                                padding: 1rem; border-radius: 10px; text-align: center; color: white;">
+                        <h3 style="margin: 0; font-size: 1.5rem;">{ai_pred['short_ma']}</h3>
+                        <p style="margin: 0; opacity: 0.9;">🤖 AI Short MA</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.info("Run ML Predictor")
+            
+            with summary_col2:
+                if 'ai_predictions' in results:
+                    ai_pred = results['ai_predictions']
+                    st.markdown(f"""
+                    <div style="background: linear-gradient(135deg, #66bb6a 0%, #4caf50 100%); 
+                                padding: 1rem; border-radius: 10px; text-align: center; color: white;">
+                        <h3 style="margin: 0; font-size: 1.5rem;">{ai_pred['long_ma']}</h3>
+                        <p style="margin: 0; opacity: 0.9;">🤖 AI Long MA</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.info("Run ML Predictor")
+            
+            with summary_col3:
+                if 'optuna_results' in results:
+                    optuna_res = results['optuna_results']
+                    st.markdown(f"""
+                    <div style="background: linear-gradient(135deg, #ff9800 0%, #f57c00 100%); 
+                                padding: 1rem; border-radius: 10px; text-align: center; color: white;">
+                        <h3 style="margin: 0; font-size: 1.5rem;">{optuna_res['best_short_ma']}</h3>
+                        <p style="margin: 0; opacity: 0.9;">⚡ Optuna Short</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.info("Run Optimization")
+            
+            with summary_col4:
+                if 'optuna_results' in results:
+                    optuna_res = results['optuna_results']
+                    st.markdown(f"""
+                    <div style="background: linear-gradient(135deg, #e91e63 0%, #c2185b 100%); 
+                                padding: 1rem; border-radius: 10px; text-align: center; color: white;">
+                        <h3 style="margin: 0; font-size: 1.5rem;">{optuna_res['best_long_ma']}</h3>
+                        <p style="margin: 0; opacity: 0.9;">⚡ Optuna Long</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                else:
+                    st.info("Run Optimization")
+            
+            st.markdown("---")
+            
+            # Detailed results in expandable sections
+            if 'ai_predictions' in results:
+                with st.expander("🤖 AI Model Predictions", expanded=True):
+                    ai_pred = results['ai_predictions']
+                    training_res = results.get('training_results', {})
+                    
+                    pred_col1, pred_col2 = st.columns(2)
+                    
+                    with pred_col1:
+                        st.metric("AI Short MA", ai_pred['short_ma'])
+                        st.metric("AI Long MA", ai_pred['long_ma'])
+                        st.metric("Confidence Score", f"{ai_pred['confidence']:.1%}")
+                    
+                    with pred_col2:
+                        if training_res:
+                            st.metric("Training Samples", training_res.get('training_samples', 'N/A'))
+                            st.metric("Model Accuracy", f"{training_res.get('performance_r2', 0):.3f}")
+                            st.metric("Expected Score", f"{ai_pred.get('expected_score', 0):.3f}")
+            
+            if 'optuna_results' in results:
+                with st.expander("⚡ Hyperparameter Optimization Results", expanded=True):
+                    optuna_res = results['optuna_results']
+                    
+                    opt_col1, opt_col2 = st.columns(2)
+                    
+                    with opt_col1:
+                        st.metric("Best Short MA", optuna_res['best_short_ma'])
+                        st.metric("Best Long MA", optuna_res['best_long_ma'])
+                        st.metric("Optimization Score", f"{optuna_res['best_score']:.3f}")
+                    
+                    with opt_col2:
+                        st.metric("Trials Completed", optuna_res['n_trials'])
+                        st.metric("Method", optuna_res['optimization_method'])
+                        
+                        # Performance indicator
+                        score = optuna_res['best_score']
+                        if score > 0.5:
+                            st.success("🎯 Excellent Performance")
+                        elif score > 0.2:
+                            st.warning("📊 Good Performance")
+                        else:
+                            st.info("⚠️ Moderate Performance")
+            
+            # AI insights with better formatting
+            if 'insights' in results:
+                st.markdown("#### 🧠 AI Market Intelligence")
+                
+                for i, insight in enumerate(results['insights']):
+                    if "HIGH" in insight:
+                        st.success(insight)
+                    elif "MEDIUM" in insight:
+                        st.warning(insight)
+                    elif "LOW" in insight or "challenging" in insight.lower():
+                        st.error(insight)
+                    else:
+                        st.info(insight)
+            
+            # Action buttons
+            st.markdown("---")
+            st.markdown("#### 🎯 Next Steps")
+            
+            action_col1, action_col2 = st.columns(2)
+            
+            with action_col1:
+                if 'optuna_results' in results:
+                    if st.button("🚀 Run AI Backtest", type="primary", use_container_width=True, key="ai_backtest_btn"):
+                        with st.spinner("Running backtest with AI-optimized parameters..."):
+                            try:
+                                optuna_res = results['optuna_results']
+                                
+                                # Run backtest with AI parameters
+                                df = load_data(ai_symbol.upper())
+                                strategy = MovingAverageStrategy(
+                                    short_window=optuna_res['best_short_ma'],
+                                    long_window=optuna_res['best_long_ma']
+                                )
+                                backtester = Backtester(initial_cash=100000.0, commission=1.0)
+                                result = backtester.run(strategy, df, symbol=ai_symbol.upper())
+                                
+                                # Store AI backtest results
+                                st.session_state.ai_backtest_results = result
+                                st.session_state.ai_backtest_data = df
+                                
+                                st.success("🎉 AI backtest completed! Check Performance Analysis tab.")
+                                
+                            except Exception as e:
+                                st.error(f"❌ AI backtest failed: {str(e)}")
+            
+            with action_col2:
+                if st.button("🔄 Run New Optimization", use_container_width=True, key="new_optimization_btn"):
+                    # Clear results and go back to optimizer
+                    if 'ai_optimization_results' in st.session_state:
+                        del st.session_state.ai_optimization_results
+                    if 'ai_backtest_results' in st.session_state:
+                        del st.session_state.ai_backtest_results
+                    if 'ai_backtest_data' in st.session_state:
+                        del st.session_state.ai_backtest_data
+                    st.rerun()
+        
+        else:
+            # Empty state with call to action
+            st.markdown("""
+            <div style="text-align: center; padding: 3rem; background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%); 
+                        border-radius: 15px; margin: 2rem 0;">
+                <h3 style="color: #666;">🤖 No AI Results Yet</h3>
+                <p style="color: #888; margin-bottom: 2rem;">
+                    Run AI optimization to see intelligent parameter recommendations and market insights.
+                </p>
+                <p style="color: #999;">👈 Go to the AI Optimizer tab to get started!</p>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    with tab3:
+        st.markdown("### 📈 AI Performance Analysis")
+        
+        if 'ai_backtest_results' in st.session_state:
+            result = st.session_state.ai_backtest_results
+            data = st.session_state.ai_backtest_data
+            
+            # Performance summary
+            if hasattr(result, 'enhanced_metrics'):
+                metrics = result.enhanced_metrics
+                
+                st.markdown("#### 🎯 AI Strategy Performance")
+                
+                perf_col1, perf_col2, perf_col3, perf_col4 = st.columns(4)
+                
+                with perf_col1:
+                    return_pct = metrics.get('total_return_pct', 0)
+                    delta_color = "normal" if return_pct >= 0 else "inverse"
+                    st.metric("Total Return", f"{return_pct:.2f}%", delta=f"{return_pct:.2f}%")
+                
+                with perf_col2:
+                    sharpe = metrics.get('sharpe_ratio', 0)
+                    st.metric("Sharpe Ratio", f"{sharpe:.3f}", delta=f"{sharpe:.3f}")
+                
+                with perf_col3:
+                    drawdown = metrics.get('max_drawdown_pct', 0)
+                    st.metric("Max Drawdown", f"{drawdown:.2f}%", delta=f"{drawdown:.2f}%")
+                
+                with perf_col4:
+                    win_rate = metrics.get('win_rate_pct', 0)
+                    st.metric("Win Rate", f"{win_rate:.2f}%", delta=f"{win_rate:.2f}%")
+            
+            # Interactive charts
+            st.markdown("#### 📊 Interactive Charts")
+            
+            chart_tab1, chart_tab2 = st.tabs(["📈 Price & AI Signals", "💰 AI Equity Curve"])
+            
+            with chart_tab1:
+                if not result.signals.empty:
+                    fig_price = create_price_chart(data, result.signals, ai_symbol.upper())
+                    fig_price.update_layout(title=f"🤖 AI-Optimized Strategy: {ai_symbol.upper()}")
+                    st.plotly_chart(fig_price, use_container_width=True)
+            
+            with chart_tab2:
+                if not result.equity_df.empty:
+                    fig_equity = create_equity_curve(result.equity_df, result.performance)
+                    fig_equity.update_layout(title="🤖 AI-Optimized Portfolio Performance")
+                    st.plotly_chart(fig_equity, use_container_width=True)
+        
+        else:
+            st.markdown("""
+            <div style="text-align: center; padding: 3rem; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); 
+                        border-radius: 15px; margin: 2rem 0;">
+                <h3 style="color: #1976d2;">📈 No Performance Data</h3>
+                <p style="color: #424242; margin-bottom: 2rem;">
+                    Run AI optimization and backtest to see detailed performance analysis with interactive charts.
+                </p>
+                <p style="color: #666;">🚀 Complete the AI optimization process first!</p>
+            </div>
+            """, unsafe_allow_html=True)
 
 def show_analysis():
     st.markdown("## 📈 Advanced Analysis")
